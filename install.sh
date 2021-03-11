@@ -7,8 +7,10 @@ echo Updating APT
 sudo apt-get update
 echo Installing Python3 dev
 sudo apt-get install python3-pip python-dev
-echo Installing UNICORN pHAT library
-sudo pip3 install unicornhat
+#You must enable SPI on your Raspberry Pi
+sudo raspi-config nonint do_spi 0
+echo Installing UNICORN HAT Mini library
+sudo pip3 install unicornhatmini
 echo Installing qrcode module
 sudo pip3 install pyqrcode
 echo Installing gpiozero 
