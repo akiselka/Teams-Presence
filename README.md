@@ -4,7 +4,7 @@
 
 This project is a fork of [Teams-Presence](https://github.com/maxi07/Teams-Presence), to support the UNICORN HAT Mini LED.
 
-An open source python script to display your Microsoft Teams presence to an RGB LED panel. This project uses an [Unicorn pHAT for Raspberry Pi Zero](https://shop.pimoroni.com/products/unicorn-phat) combined with the latest version of the [Microsoft Graph API](https://docs.microsoft.com/de-de/graph/overview).
+An open source python script to display your Microsoft Teams presence to an RGB LED panel. This project uses an [Unicorn HAT Mini](https://www.adafruit.com/product/4637) combined with the latest version of the [Microsoft Graph API](https://docs.microsoft.com/de-de/graph/overview).
 It supports a variety of [presence types](https://docs.microsoft.com/de-de/graph/api/resources/presence?view=graph-rest-beta), eg.
    - Available = ![#c5f015](https://via.placeholder.com/15/c5f015/000000?text=+) Green
    - Busy = ![#f03c15](https://via.placeholder.com/15/f03c15/000000?text=+) Red
