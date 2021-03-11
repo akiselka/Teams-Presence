@@ -1,4 +1,4 @@
-# Teams Presence for Raspberry Pi
+# Teams Presence for Raspberry Pi - UNICORN HAT Mini LED
 [![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/maxi07/Teams-Presence)
 
