@@ -45,7 +45,8 @@ try:
 	import configparser
 	from urllib.error import HTTPError
 	import json
-	import unicornhat as unicorn
+	from unicornhatmini import UnicornHATMini 
+	#import unicornhat as unicorn
 	import threading
 	import sys
 	import urllib.parse
@@ -220,33 +221,35 @@ def setColor(r, g, b, brightness, speed) :
 	globalGreen = g
 	globalBlue = b
 
+	#unicornhatmini = UnicornHATMini()
+
 	if brightness == '' :
-		unicorn.brightness(brightness_led)
+		unicornhatmini.set_brightness(brightness_led)
 
 	for y in range(height):
 		for x in range(width):
-			unicorn.set_pixel(x, y, r, g, b)
-			unicorn.show()
+			unicornhatmini.set_pixel(x, y, r, g, b)
+			unicornhatmini.show()
 
 def pulse():
 	for b in range(0, 7):
 		blockPrint()
-		unicorn.brightness(b/10)
+		unicornhatmini.set_brightness(b/10)
 		enablePrint()
 		for y in range(height):
 			for x in range(width):
-				unicorn.set_pixel(x, y, 102, 255, 255)
-				unicorn.show()
+				unicornhatmini.set_pixel(x, y, 102, 255, 255)
+				unicornhatmini.show()
 		sleep(0.05)
 	sleep(1)
 	for b in range(6, 0, -1):
 		blockPrint()
-		unicorn.brightness(b/10)
+		unicornhatmini.set_brightness(b/10)
 		enablePrint()
 		for y in range(height):
 			for x in range(width):
-				unicorn.set_pixel(x, y, 102, 255, 255)
-				unicorn.show()
+				unicornhatmini.set_pixel(x, y, 102, 255, 255)
+				unicornhatmini.show()
 		sleep(0.05)
 
 def switchBlue() :
@@ -296,8 +299,8 @@ def switchOff() :
 	globalBlue = 0
 	if blinkThread != None :
 		blinkThread.do_run = False
-	unicorn.clear()
-	unicorn.off()
+	unicornhatmini.clear()
+	#unicornhatmini.off()
 
 class LightPoint:
 
@@ -344,10 +347,10 @@ def update_positions():
 
 def plot_points():
 
-	unicorn.clear()
+	unicornhatmini.clear()
 	for point in points:
-		unicorn.set_pixel(point.x, point.y, point.colour[0], point.colour[1], point.colour[2])
-	unicorn.show()
+		unicornhatmini.set_pixel(point.x, point.y, point.colour[0], point.colour[1], point.colour[2])
+	unicornhatmini.show()
 
 def blinkRandom(arg):
 	t = threading.currentThread()
@@ -435,6 +438,9 @@ def printHeader():
 
 # Check for Weekend
 def check_weekend():
+	if args.afterwork:
+		return
+		
 	now = datetime.now()
 	while now.strftime("%A") not in workdays:
 		printHeader()
@@ -486,14 +492,14 @@ if __name__ == '__main__':
 
 	# Check for updates
 	checkUpdate()
-
 	# Setup Unicorn light
+	unicornhatmini = UnicornHATMini()
 	setColor(50, 50, 50, 1, '')
-	unicorn.set_layout(unicorn.AUTO)
-	unicorn.brightness(0.5)
+	#unicornhatmini.set_layout(unicornhatmini.AUTO) 
+	unicornhatmini.set_brightness(0.5)
 
 	# Get the width and height of the hardware
-	width, height = unicorn.get_shape()
+	width, height = unicornhatmini.get_shape()
 
 	blinkThread = threading.Thread(target=blinkRandom, args=("task",))
 	blinkThread.do_run = True
@@ -516,142 +522,147 @@ if __name__ == '__main__':
 	blinkThread.join()
 
 	trycount = 0
+	
+	try:
 
-	while True:
-		check_weekend()
-		check_workingtimes()
+		while True:
+			check_weekend()
+			check_workingtimes()
 
-		# Check network
-		if is_connected() == False:
-			printerror("No network is connected. Waiting for reconnect.")
-			countdown(30)
-			continue
-
-		print("Fetching new data")
-		headers={'Authorization': 'Bearer ' + token}
-
-		jsonresult = ''
-
-		try:
-			result = requests.get(f'https://graph.microsoft.com/beta/me/presence', headers=headers, timeout=5)
-			result.raise_for_status()
-			jsonresult = result.json()
-
-		except requests.exceptions.Timeout as timeerr:
-			printerror("The request for Graph API timed out! " + str(timeerr))
-			continue
-
-		except requests.exceptions.HTTPError as err:
-			if err.response.status_code == 404:
-				printerror("MS Graph URL is invalid!")
-				exit(5)
-			elif err.response.status_code == 401:
-				blinkThread = threading.Thread(target=blinkRandom, args=("task",))
-				blinkThread.do_run = True
-				blinkThread.start()
-
-				trycount = trycount + 1
-				printerror("MS Graph is not authorized. Please reauthorize the app (401). Trial count: " + str(trycount))
-				print()
-				Authorize()
+			# Check network
+			if is_connected() == False:
+				printerror("No network is connected. Waiting for reconnect.")
+				countdown(30)
 				continue
 
-		except:
-			print("Unexpected error:", sys.exc_info()[0])
-			print("Will try again. Trial count: " + str(trycount))
+			print("Fetching new data")
+			headers={'Authorization': 'Bearer ' + token}
+
+			jsonresult = ''
+
+			try:
+				result = requests.get(f'https://graph.microsoft.com/beta/me/presence', headers=headers, timeout=5)
+				result.raise_for_status()
+				jsonresult = result.json()
+
+			except requests.exceptions.Timeout as timeerr:
+				printerror("The request for Graph API timed out! " + str(timeerr))
+				continue
+
+			except requests.exceptions.HTTPError as err:
+				if err.response.status_code == 404:
+					printerror("MS Graph URL is invalid!")
+					exit(5)
+				elif err.response.status_code == 401:
+					blinkThread = threading.Thread(target=blinkRandom, args=("task",))
+					blinkThread.do_run = True
+					blinkThread.start()
+
+					trycount = trycount + 1
+					printerror("MS Graph is not authorized. Please reauthorize the app (401). Trial count: " + str(trycount))
+					print()
+					Authorize()
+					continue
+
+			except:
+				print("Unexpected error:", sys.exc_info()[0])
+				print("Will try again. Trial count: " + str(trycount))
+				print()
+				countdown(int(sleepValue))
+				continue
+
+			trycount = 0
+
+			# Check for jsonresult
+			if jsonresult == '':
+				printerror("JSON result is empty! Will try again.")
+				printerror(jsonresult)
+				countdown(5)
+				continue
+
+			# Stop random blinking
+			if blinkThread != None :
+				blinkThread.do_run = False
+				blinkThread.join()
+
+			# Get CPU temp
+			cpu = CPUTemperature()
+
+			# Print to display
+			os.system('clear')
+			print("============================================")
+			print("            MSFT Teams Presence")
+			print("============================================")
+			print()
+			now = datetime.now()
+			print("Last API call:\t\t" + now.strftime("%Y-%m-%d %H:%M:%S"))
+			cpu_r = round(cpu.temperature, 2)
+			print("Current CPU:\t\t" + str(cpu_r) + "°C")
+
+			if args.brightness:
+				printwarning("Option:\t\t\t" + "Set brightness to " + str(brightness))
+
+			if args.refresh:
+				printwarning("Option:\t\t\t" +  "Set refresh to " + str(sleepValue))
+
+			if args.nopulse:
+				printwarning("Option:\t\t\t" + "Pulsing disabled")
+
+			if args.afterwork:
+				printwarning("Option:\t\t\t" + "Set display after work to True")
+
+			print("User:\t\t\t" + fullname)
+
+
+
+			if jsonresult['activity'] == "Available":
+				print("Teams presence:\t\t" + '\033[32m' + "Available" + '\033[0m')
+				switchGreen()
+			elif jsonresult['activity'] == "InACall":
+				print("Teams presence:\t\t" + '\033[31m' + "In a call" + '\033[0m')
+				switchRed()
+			elif jsonresult['activity'] == "Away":
+							print("Teams presence:\t\t" + '\033[33m' + "Away" + '\033[0m')
+							switchYellow()
+			elif jsonresult['activity'] == "BeRightBack":
+							print("Teams presence:\t\t" + '\033[33m' + "Be Right Back" + '\033[0m')
+							switchYellow()
+			elif jsonresult['activity'] == "Busy":
+							print("Teams presence:\t\t" + '\033[31m' + "Busy" + '\033[0m')
+							switchRed()
+			elif jsonresult['activity'] == "InAConferenceCall":
+							print("Teams presence:\t\t" + '\033[31m' + "In a conference call" + '\033[0m')
+							switchRed()
+			elif jsonresult['activity'] == "DoNotDisturb":
+							print("Teams presence:\t\t" + '\033[31m' + "Do Not Disturb" + '\033[0m')
+							switchRed()
+			elif jsonresult['activity'] == "Offline":
+				print("Teams presence:\t\t" + "Offline")
+				switchPink()
+			elif jsonresult['activity'] == "Inactive":
+							print("Teams presence:\t\t" + '\033[33m' + "Inactive" + '\033[0m')
+							switchYellow()
+			elif jsonresult['activity'] == "InAMeeting":
+							print("Teams presence:\t\t" + '\033[31m' + "In a meeting" + '\033[0m')
+							switchRed()
+			elif jsonresult['activity'] == "OffWork":
+							print("Teams presence:\t\t" + '\033[35m' + "Off work" + '\033[0m')
+							switchPink()
+			elif jsonresult['activity'] == "OutOfOffice":
+							print("Teams presence:\t\t" + '\033[35m' + "Out of office" + '\033[0m')
+							switchPink()
+			elif jsonresult['activity'] == "Presenting":
+							print("Teams presence:\t\t" + '\033[31m' + "Presenting" + '\033[0m')
+							switchRed()
+			elif jsonresult['activity'] == "UrgentInterruptionsOnly":
+							print("Teams presence:\t\t" + '\033[31m' + "Urgent interruptions only" + '\033[0m')
+							switchRed()
+			else:
+				print("Teams presence:\t\t" + "Unknown")
+				switchBlue()
 			print()
 			countdown(int(sleepValue))
-			continue
 
-		trycount = 0
-
-		# Check for jsonresult
-		if jsonresult == '':
-			printerror("JSON result is empty! Will try again.")
-			printerror(jsonresult)
-			countdown(5)
-			continue
-
-		# Stop random blinking
-		if blinkThread != None :
-			blinkThread.do_run = False
-			blinkThread.join()
-
-		# Get CPU temp
-		cpu = CPUTemperature()
-
-		# Print to display
-		os.system('clear')
-		print("============================================")
-		print("            MSFT Teams Presence")
-		print("============================================")
-		print()
-		now = datetime.now()
-		print("Last API call:\t\t" + now.strftime("%Y-%m-%d %H:%M:%S"))
-		cpu_r = round(cpu.temperature, 2)
-		print("Current CPU:\t\t" + str(cpu_r) + "°C")
-
-		if args.brightness:
-			printwarning("Option:\t\t\t" + "Set brightness to " + str(brightness))
-
-		if args.refresh:
-			printwarning("Option:\t\t\t" +  "Set refresh to " + str(sleepValue))
-
-		if args.nopulse:
-			printwarning("Option:\t\t\t" + "Pulsing disabled")
-
-		if args.afterwork:
-			printwarning("Option:\t\t\t" + "Set display after work to True")
-
-		print("User:\t\t\t" + fullname)
-
-
-
-		if jsonresult['activity'] == "Available":
-			print("Teams presence:\t\t" + '\033[32m' + "Available" + '\033[0m')
-			switchGreen()
-		elif jsonresult['activity'] == "InACall":
-			print("Teams presence:\t\t" + '\033[31m' + "In a call" + '\033[0m')
-			switchRed()
-		elif jsonresult['activity'] == "Away":
-                        print("Teams presence:\t\t" + '\033[33m' + "Away" + '\033[0m')
-                        switchYellow()
-		elif jsonresult['activity'] == "BeRightBack":
-                        print("Teams presence:\t\t" + '\033[33m' + "Be Right Back" + '\033[0m')
-                        switchYellow()
-		elif jsonresult['activity'] == "Busy":
-                        print("Teams presence:\t\t" + '\033[31m' + "Busy" + '\033[0m')
-                        switchRed()
-		elif jsonresult['activity'] == "InAConferenceCall":
-                        print("Teams presence:\t\t" + '\033[31m' + "In a conference call" + '\033[0m')
-                        switchRed()
-		elif jsonresult['activity'] == "DoNotDisturb":
-                        print("Teams presence:\t\t" + '\033[31m' + "Do Not Disturb" + '\033[0m')
-                        switchRed()
-		elif jsonresult['activity'] == "Offline":
-			print("Teams presence:\t\t" + "Offline")
-			switchPink()
-		elif jsonresult['activity'] == "Inactive":
-                        print("Teams presence:\t\t" + '\033[33m' + "Inactive" + '\033[0m')
-                        switchYellow()
-		elif jsonresult['activity'] == "InAMeeting":
-                        print("Teams presence:\t\t" + '\033[31m' + "In a meeting" + '\033[0m')
-                        switchRed()
-		elif jsonresult['activity'] == "OffWork":
-                        print("Teams presence:\t\t" + '\033[35m' + "Off work" + '\033[0m')
-                        switchPink()
-		elif jsonresult['activity'] == "OutOfOffice":
-                        print("Teams presence:\t\t" + '\033[35m' + "Out of office" + '\033[0m')
-                        switchPink()
-		elif jsonresult['activity'] == "Presenting":
-                        print("Teams presence:\t\t" + '\033[31m' + "Presenting" + '\033[0m')
-                        switchRed()
-		elif jsonresult['activity'] == "UrgentInterruptionsOnly":
-                        print("Teams presence:\t\t" + '\033[31m' + "Urgent interruptions only" + '\033[0m')
-                        switchRed()
-		else:
-			print("Teams presence:\t\t" + "Unknown")
-			switchBlue()
-		print()
-		countdown(int(sleepValue))
+	except KeyboardInterrupt:
+		pass
 
