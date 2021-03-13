@@ -199,13 +199,13 @@ def is_connected():
 
 # Checks for updates
 def checkUpdate():
-	updateUrl = "https://raw.githubusercontent.com/maxi07/Teams-Presence/master/doc/version"
+	updateUrl = "https://raw.githubusercontent.com/akiselka/Teams-Presence/master/doc/version"
 	try:
 		f = requests.get(updateUrl, timeout=10)
 		latestVersion = float(f.text)
 		if latestVersion > version:
 			printwarning("There is an update available.")
-			printwarning("Head over to https://github.com/maxi07/Teams-Presence to get the latest features.")
+			printwarning("Head over to https://github.com/akiselka/Teams-Presence to get the latest features.")
 		else:
 			print("Application is running latest version.")
 	except Exception as e:
