@@ -33,7 +33,7 @@ The difference of this solution in comparison to my original inspiration is that
 
 ## Prerequisites
 - Get Rasbian running with the latest version of Python3
-- Solder your [Unicorn pHAT](https://shop.pimoroni.com/products/unicorn-phat) with your Raspberry Pi
+- Solder your [Unicorn HAT Mini](https://www.adafruit.com/product/4637) with your Raspberry Pi
 - *Optionally* use a [diffuser](https://shop.pimoroni.com/products/phat-diffuser) to make the result more attractive
 
 ## Installation
