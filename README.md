@@ -12,7 +12,7 @@ It supports a variety of [presence types](https://docs.microsoft.com/de-de/graph
    - Out of office = ![#C433FF](https://via.placeholder.com/15/C433FF/000000?text=+) Purple
    - and a lot more!
 
-The Python script pulls the Microsoft Teams presence by using the [Microsoft Graph API](https://docs.microsoft.com/de-de/graph/overview) every 30 seconds and prints the result to console. The presence object will then be converted to a color, which is displayed with the pHAT.
+The Python script pulls the Microsoft Teams presence by using the [Microsoft Graph API](https://docs.microsoft.com/de-de/graph/overview) every 30 seconds and prints the result to console. The presence object will then be converted to a color, which is displayed with the Hat mini.
 
 <img src="https://raw.githubusercontent.com/maxi07/Teams-Presence/master/doc/teams-presence.gif" align="center" width="800"/>
 
@@ -34,7 +34,6 @@ The difference of this solution in comparison to my original inspiration is that
 ## Prerequisites
 - Get Rasbian running with the latest version of Python3
 - Solder your [Unicorn HAT Mini](https://www.adafruit.com/product/4637) with your Raspberry Pi
-- *Optionally* use a [diffuser](https://shop.pimoroni.com/products/phat-diffuser) to make the result more attractive
 
 ## Installation
 To install the script and all the according libraries, clone the repository and run the ```sudo ./install.sh``` command.
@@ -51,7 +50,7 @@ Get all options with the ```sudo python3 teams-presence.py --help``` command. In
    - ```--help``` Prints the help dialog
    - ```--version``` Prints the version number of the script
    - ```--refresh``` Sets the refresh value in seconds. Must be greater than 10 seconds.
-   - ```--brightness``` Sets the brightness of your pHAT. Must be between 0.1 and 1.
+   - ```--brightness``` Sets the brightness of your HAT mini. Must be between 0.1 and 1.
    - ```--afterwork``` Check for presence after working hours.
    - ```--nopulse``` Disables pulsing, if after work hours.
 
